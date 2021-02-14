@@ -38,4 +38,14 @@ jobs:
         push: true
         tags: ${{ steps.prep.outputs.tags }}
 
+    - name: Run docker container
+      run: docker run -d ${{ steps.prep.outputs.tags }}
+      
+    - name: Update latest image 
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: alexandrandreenko/telegrambot:latest
+    
 
