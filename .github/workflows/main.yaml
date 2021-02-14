@@ -24,6 +24,10 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: alexandrandreenko/telegrambot:${{ (date +%s) }}
+        repository: alexandrandreenko/telegrambot
+        tag_with_ref: true
+        tag_with_sha: true
+        add_git_labels: true
+        
 
 
