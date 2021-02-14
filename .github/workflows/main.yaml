@@ -13,7 +13,7 @@ jobs:
     - name: Git clone repo
       uses: actions/checkout@v1
     - name: Install packeges
-      run: sudo -H pip3 install pyTelegramBotAPI
+      run: sudo apt-get install python3-setuptools && sudo -H pip3 install pyTelegramBotAPI
     - name: run script
       run: python3.8 main.py  
 
