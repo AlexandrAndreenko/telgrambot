@@ -16,9 +16,6 @@ jobs:
       run: |
         DOCKER_IMAGE=alexandrandreenko/telegrambot
         VERSION=edge
-        if [[ $GITHUB_REF == refs/tags/* ]]; then
-          VERSION=${GITHUB_REF#refs/tags/}
-        fi
         TAGS="${DOCKER_IMAGE}:${VERSION}"
         if [ "${{ github.event_name }}" = "push" ]; then
           TAGS="$TAGS,${DOCKER_IMAGE}:sha-${GITHUB_SHA::8}"
