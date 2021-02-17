@@ -2,7 +2,7 @@ name: Test fo github runner
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   test_local_script:
@@ -14,4 +14,4 @@ jobs:
       uses: actions/checkout@v1
     - name: Running test script
       run: |
-      sh ./testscript.sh 
+      sh ./testscript.sh
