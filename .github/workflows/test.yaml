@@ -13,5 +13,4 @@ jobs:
     - name: Clone repo
       uses: actions/checkout@v1
     - name: Running test script
-      run: |
-      sh ./testscript.sh
+      run: sh ./testscript.sh
