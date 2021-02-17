@@ -1,0 +1,17 @@
+name: Test fo github runner
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test_local_script:
+    runs-on: self-hosted
+
+
+    steps:
+    - name: Clone repo
+      uses: actions/checkout@v1
+    - name: Running test script
+      run: |
+      sh ./testscript.sh 
