@@ -2,7 +2,7 @@ name: Test fo github runner
 on:
   push:
     branches:
-      - main2
+      - main
 
 jobs:
   test_local_script:
