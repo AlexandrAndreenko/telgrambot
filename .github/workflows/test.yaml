@@ -18,6 +18,7 @@ jobs:
       with: 
         aws-acesse-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: ${{ secrets.AWS_Region }}
       
     - name: Running test script
       run: sh ./testscript.sh
