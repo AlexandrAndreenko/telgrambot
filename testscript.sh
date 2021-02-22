@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-function finish {
-    rm -f ./build.zip ./.gitattributes
-}
-trap finish EXIT
-
 if [[ $# -lt 1 || $# -gt 2 ]]; then
     echo Illegal number of parameters
     exit
