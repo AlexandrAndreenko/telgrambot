@@ -21,4 +21,4 @@ jobs:
         aws-region: ${{ secrets.AWS_Region }}
       
     - name: Running test script
-      run: sh ./testscript.sh
+      run: sh ./testscript.sh Testapp-env
