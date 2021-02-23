@@ -16,6 +16,5 @@ jobs:
       run: |
         sudo su
         cd /home/telgrambot
-        git pull
         bash ./testscript.sh Testapp-env
 
