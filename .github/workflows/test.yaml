@@ -13,8 +13,9 @@ jobs:
     steps:
     - name: Deploy to test env
       if: github.ref == 'refs/heads/test'
+      options: --user 1001
       run: |
-        sudo su
+        
         whoami
         cd /home/telgrambot
         bash ./testscript.sh Testapp-env
