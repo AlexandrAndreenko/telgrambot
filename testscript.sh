@@ -48,4 +48,4 @@ echo Done building
 echo "Deploying $ENV_TYPE build to $1 in 3 seconds"
 sleep 3
 echo Deploying
-eb deploy Testapp-env --staged -m "$ENV_TYPE$TEST_MSG"
+sudo /root/.local/bin/eb deploy Testapp-env --staged -m "$ENV_TYPE$TEST_MSG"

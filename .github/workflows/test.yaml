@@ -16,5 +16,5 @@ jobs:
       run: |
         sudo su && whoami
         cd /home/telgrambot
-        bash ./testscript.sh Testapp-env
+        sudo bash ./testscript.sh Testapp-env
 
