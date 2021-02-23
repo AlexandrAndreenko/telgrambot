@@ -1,24 +1,18 @@
-name: Test fo github runner
+name: Test for github runner
 on:
   push:
     branches:
-      - main
+      - '**' 
+  pull_request:
+    branches-ignore:
+      - '**'   
 
 jobs:
-  test_local_script:
+  test_deploy:
     runs-on: self-hosted
-
-
     steps:
-    - name: Clone repo
-      uses: actions/checkout@v1
-      
-    - name: AWS Creds
-      uses: aws-actions/configure-aws-credentials@v1
-      with: 
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: ${{ secrets.AWS_Region }}
-      
-    - name: Running test script
-      run: ./testscript.sh Testapp-env
+    - name: Deploy to test env
+      if: github.ref == 'refs/heads/test'
+      run: |
+        bash ./testscript.sh Testapp-env
+
