@@ -1,0 +1,19 @@
+branch-defaults:
+  test:
+    environment: Testapp-env-1
+environment-defaults:
+  Testapp-env-1:
+    branch: null
+    repository: null
+global:
+  application_name: Testapp
+  default_ec2_keyname: null
+  default_platform: PHP 7.4 running on 64bit Amazon Linux 2
+  default_region: eu-central-1
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: eb-cli
+  sc: git
+  workspace_type: Application
