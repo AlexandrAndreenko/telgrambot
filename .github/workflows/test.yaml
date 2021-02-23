@@ -15,6 +15,7 @@ jobs:
       if: github.ref == 'refs/heads/test'
       run: |
         sudo su
+        whoami
         cd /home/telgrambot
         git pull
         bash ./testscript.sh Testapp-env
