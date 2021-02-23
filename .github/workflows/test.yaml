@@ -14,5 +14,8 @@ jobs:
     - name: Deploy to test env
       if: github.ref == 'refs/heads/test'
       run: |
+        sudo su
+        cd /home/test
+        git pull
         bash ./testscript.sh Testapp-env
 
