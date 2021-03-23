@@ -1,51 +1,156 @@
-#!/usr/bin/env bash
-
-if [[ $# -lt 1 || $# -gt 2 ]]; then
-    echo Illegal number of parameters
-    exit
-fi
-TEST_MSG=''
-if [[ "$1" = *'test'* ]]; then
-   TEST_MSG=' test'
+#!/bin/bash
+if [[ $# -ne 3 ]]; then
+    echo "usage: $0 srcBranch dstBranch prId"
+    echo "example: $0 staging master 1618"
+    exit 1
 fi
 
-FORCE_CLEAR_CACHE=0
-SKIP_CLEAR_CACHE=0
-
-for i in $@; do
-    if [[ $i == '-fcc' || $i == '--force-clear-cache' ]]; then
-        FORCE_CLEAR_CACHE=1
+debug() {
+    if [ $2 -eq 1 ]; then
+        echo $1 >> /home/deployer/log.txt
     fi
-    if [[ $i == '-scc' || $i == '--skip-clear-cache' ]]; then
-        SKIP_CLEAR_CACHE=1
-    fi
-done
+}
 
-if [[ ( $2 == 'worker' || $1 == *'worker'* ) && $2 != 'server' ]]; then
-    ENV_TYPE=worker
-    echo '.ebextensions/https-backendsecurity.config export-ignore' > ./.gitattributes
-    if [[ $FORCE_CLEAR_CACHE -eq 0 ]]; then
-        echo "Building for worker"
-        echo '.ebextensions/v_clear_metadata_cache.config export-ignore' >> ./.gitattributes
+dryRun=0
+srcBranch=$1
+dstBranch=$2
+prId=$3
+backendBranch='/home/deployer/backend'
+bindir=/home/deployer/.local/bin
+
+if [ -f /tmp/deployer-pr-lock-$prId ]; then
+    debug "double $prId" 1
+    exit 1;
+fi
+touch /tmp/deployer-pr-lock-$prId
+cd $backendBranch
+git checkout master
+git pull
+VERSIONFILE=`cat /home/deployer/backend/.ebextensions/files/scripts/deployment_cmd.sh |grep 'VERSION_TO_BE_DEPLOYED=' | awk -F'=' '{print $2}' | sed "s/'//g"`
+currentTag=`git describe --abbrev=0 --tags`
+debug "current tag: $currentTag" $dryRun
+
+if [ ! -f /tmp/${VERSIONFILE} ]; then
+        touch /tmp/${VERSIONFILE}
+        aws s3 cp /tmp/${VERSIONFILE} s3://cw-deployment-lock/${VERSIONFILE} --region=eu-central-1
+fi
+
+if [ "$dstBranch" == "staging" ]; then
+    git checkout staging
+    git pull
+    git checkout master
+    git merge staging
+    version=`echo $srcBranch|awk -F'-' '{print $2}'`
+    debug "version $version" $dryRun
+    if [ "$version" != "" ]; then 
+        debug "git tag -a \"v$version\" -m \"Version $version\"" $dryRun
+        debug "git push" $dryRun
+        debug "git push --tags" $dryRun
+        if [ $dryRun -ne 1 ]; then
+            git tag -a "v$version" -m "Version $version"
+            git push
+            git push --tags
+        fi
+        while true; do
+            debug "aws elasticbeanstalk describe-environment-health --environment-name cw-test-2 --attribute-name Status | jq -r .Status" $dryRun
+            cwprod=`aws elasticbeanstalk describe-environment-health --environment-name cw-test-2 --attribute-name Status | jq -r .Status`
+            debug "cwprod is $cwprod" $dryRun
+            if [ "$cwprod" == "Ready" ]; then
+                debug "./deployement.sh cw-test2" $dryRun
+                if [ $dryRun -ne 1 ]; then
+                    ./deployement.sh cw-test-2
+                fi
+                break
+            else
+               debug "cw prod is NOT ready, retrying" $dryRun 
+            fi
+        done
+
+        while true; do 
+            cwinstwrk=`aws elasticbeanstalk describe-environment-health --environment-name cw-worker-test-2 --attribute-name Status | jq -r .Status`
+            debug "./deployement.sh cw-worker-test-2" $dryRun
+            if [ "$cwinstwrk" == "Ready" ]; then
+                if [ $dryRun -ne 1 ]; then
+                ./deployement.sh cw-worker-test-2
+                fi
+                break
+            else
+                debug "cw instant is NOT ready, retrying" $dryRun
+            fi
+        done
+    fi
+    now=`date +%Y-%m-%d.%H:%M:%S`
+    debug "aws s3 cp /home/deployer/logfile.txt s3://cw-middle-box/webhooklog-test-$now --region=eu-central-1" $dryRun
+    debug "aws s3 cp /home/deployer/log.txt s3://cw-middle-box/daemonlog-test-$now --region=eu-central-1" $dryRun
+    aws s3 cp /home/deployer/logfile.txt s3://cw-middle-box/webhooklog-test-$now --region=eu-central-1
+    aws s3 cp /home/deployer/log.txt s3://cw-middle-box/daemonlog-test-$now --region=eu-central-1
+    if [ $dryRun -ne 1 ]; then
+        true > /home/deployer/logfile.txt
+        true > /home/deployer/log.txt
+    fi
+elif [ "$dstBranch" == "master" ]; then
+    debug "checkout master" $dryRun
+    debug "git pull" $dryRun
+    git checkout master
+    git pull
+    git checkout staging
+    git merge master
+    git commit
+    git push
+    git checkout master
+    hfVersion=`echo $currentTag|awk -F'-' '{print $2}'`
+    debug "hfVersion: $hfVersion" $dryRun
+    if [ "$hfVersion" == "" ]; then
+	#case no hf appended, increment last part of version, and append hf1
+    	newVersion=`echo $currentTag|awk -F'.' '{print $1"."$2"."$3+1}'`
+        version="${newVersion}-hf1"
+    	version=`echo $version| awk -F'v' '{ print $2 }'`
     else
-        echo "Building for worker, proxy cache will update"
+        newVersion=`echo $currentTag|awk -F'-hf' '{print $1"-hf"$2+1}'`
+        version=`echo $newVersion| awk -F'v' '{print $2}'`
     fi
-    git archive -o ./build.zip --worktree-attributes HEAD
-    rm ./.gitattributes
-else
-    ENV_TYPE=server
-    if [[ $SKIP_CLEAR_CACHE -eq 1 ]]; then
-        echo "Building for server, proxy cache will not update"
-        echo '.ebextensions/v_clear_metadata_cache.config export-ignore' > ./.gitattributes
-        git archive -o ./build.zip --worktree-attributes HEAD
-        rm ./.gitattributes
-    else
-        echo "Building for server"
-        git archive -o ./build.zip HEAD
+	debug "we got this as version $version" $dryRun
+    if [ ${#newVersion} -gt 1 ]; then
+            debug "git tag \"v$version\" -m \"Version $version\"" $dryRun
+        if [ $dryRun -ne 1 ]; then
+            git tag "v$version" -m "Version $version"
+            git push --tags
+        fi
+        while true; do
+            cwprod=`aws elasticbeanstalk describe-environment-health --environment-name cw-test-2 --attribute-name Status | jq -r .Status`
+	        debug "zzz cwprod is $cwprod" $dryRun	
+            if [ "$cwprod" == "Ready" ]; then
+               debug "./deployement.sh cw-test-2" $dryRun 
+                if [ $dryRun -ne 1 ]; then
+                    ./deployement.sh cw-test-2
+                else
+                    debug "cw prod is NOT ready, retrying" $dryRun
+                fi
+                break
+            fi
+        done
+
+        while true; do
+            cwinstwrk=`aws elasticbeanstalk describe-environment-health --environment-name cw-worker-test-2 --attribute-name Status | jq -r .Status`
+		    debug "zzz cwinstant is $cwinstwrk" $dryRun
+            if [ "$cwinstwrk" == "Ready" ]; then
+                debug "./deployement.sh cw-worker-test-2" $dryRun 
+                if [ $dryRun -ne 1 ]; then
+                    ./deployement.sh cw-worker-test-2
+                else
+                    debug "cw instant is NOT ready, retrying" $dryRun
+                fi
+                break
+            fi
+        done
+    fi
+    now=`date +%Y-%m-%d.%H:%M:%S`
+    debug "aws s3 cp /home/deployer/logfile.txt s3://cw-middle-box/webhooklog-test-$now --region=eu-central-1" $dryRun
+    debug "aws s3 cp /home/deployer/log.txt s3://cw-middle-box/daemonlog-test-$now --region=eu-central-1" $dryRun
+    aws s3 cp /home/deployer/logfile.txt s3://cw-middle-box/webhooklog-test-$now --region=eu-central-1
+    aws s3 cp /home/deployer/log.txt s3://cw-middle-box/daemonlog-test-$now --region=eu-central-1
+    if [ $dryRun -ne 1 ]; then
+        true > /home/deployer/logfile.txt
+        true > /home/deployer/log.txt
     fi
 fi
-echo Done building
-echo "Deploying $ENV_TYPE build to $1 in 3 seconds"
-sleep 3
-echo Deploying
-eb deploy $1 --staged -m "$ENV_TYPE$TEST_MSG"
