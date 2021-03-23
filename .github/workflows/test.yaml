@@ -13,7 +13,7 @@ jobs:
     runs-on: self-hosted
     steps:
     - name: Deploy to test env
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/test2'
       run: |
         cd /home/githubrunner/telgrambot
         git pull        
