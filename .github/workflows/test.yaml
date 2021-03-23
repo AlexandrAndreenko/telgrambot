@@ -13,7 +13,7 @@ jobs:
     runs-on: self-hosted
     steps:
     - name: Deploy to test env
-      if: github.base.ref == 'main'
+      if: github.event.pull_request.base.ref == 'main'
       run: |
         cd /home/githubrunner/telgrambot
         git pull        
