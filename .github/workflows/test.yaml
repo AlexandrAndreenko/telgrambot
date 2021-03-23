@@ -15,7 +15,7 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: |
         cd /home/githubrunner/telgrambot
-        git pull
+        ./testscript.sh
         
         
 
