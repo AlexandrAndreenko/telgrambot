@@ -2,15 +2,11 @@ name: Test for github runner
 on:
   push:
     branches:
-      - '**' 
-  pull_request:
-    branches:
       - main
-    types: [closed]
-  #pull_request:
-  #  branches:
-  #    - 'main'   
-
+      - test2
+  pull_request:
+    branches-ignore:
+      - '**'
 jobs:
   test_deploy:
     runs-on: self-hosted
@@ -20,5 +16,6 @@ jobs:
       run: |
         cd /home/githubrunner/telgrambot
         git pull
+        
         
 
