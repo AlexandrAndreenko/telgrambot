@@ -4,7 +4,8 @@ on:
     branches-ignore:
       - '**' 
   pull_request:
-    branches: [main]
+    branches:
+      - main
     types: [merged]
   #pull_request:
   #  branches:
