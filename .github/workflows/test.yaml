@@ -14,7 +14,7 @@ jobs:
     - name: Deploy to test env
       if: github.ref == 'refs/heads/main'
       run: |
-        cd /home/ubuntu/test
+        cd /home/githubrunner/telgrambot
         git pull
         
 
