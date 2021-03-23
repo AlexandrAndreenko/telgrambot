@@ -3,7 +3,7 @@ on:
   push:
     branches-ignore:
       - '**' 
-  pull_request_target:
+  pull_request:
     branches: [main]
     types: [synchronize, merged]
   #pull_request:
