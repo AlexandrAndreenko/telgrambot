@@ -15,7 +15,7 @@ dryRun=0
 srcBranch=$1
 dstBranch=$2
 prId=$3
-backendBranch='/home/deployer/backend'
+backendBranch='/home/githubrunner/telgrambot'
 bindir=/home/deployer/.local/bin
 
 if [ -f /tmp/deployer-pr-lock-$prId ]; then
