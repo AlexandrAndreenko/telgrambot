@@ -1,11 +1,11 @@
 name: Test for github runner
 on:
   push:
-    branches:
+    branches-ignore:
       - '**' 
   pull_request:
-    branches-ignore:
-      - '**'   
+    branches:
+      - 'main'   
 
 jobs:
   test_deploy:
