@@ -1,12 +1,13 @@
 name: Test for github runner
 on:
   push:
+    branches-ignore:
+      - '**'
+  pull_request:
     branches:
       - main
       - test2
-  pull_request:
-    branches-ignore:
-      - '**'
+    types: [closed]
 jobs:
   test_deploy:
     runs-on: self-hosted
@@ -15,7 +16,6 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: |
         cd /home/githubrunner/telgrambot
-        ./testscript.sh
-        
+        git pull        
         
 
