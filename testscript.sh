@@ -35,7 +35,7 @@ if [ ! -f /tmp/${VERSIONFILE} ]; then
         aws s3 cp /tmp/${VERSIONFILE} s3://cw-deployment-lock/${VERSIONFILE} --region=eu-central-1
 fi
 
-if [ "$dstBranch" == "staging" ]; then
+if [ "$dstBranch" == "test2" ]; then
     git checkout staging
     git pull
     git checkout master
@@ -88,7 +88,7 @@ if [ "$dstBranch" == "staging" ]; then
         true > /home/deployer/logfile.txt
         true > /home/deployer/log.txt
     fi
-elif [ "$dstBranch" == "master" ]; then
+elif [ "$dstBranch" == "main" ]; then
     debug "checkout master" $dryRun
     debug "git pull" $dryRun
     git checkout master
