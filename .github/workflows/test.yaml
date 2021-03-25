@@ -15,16 +15,10 @@ jobs:
   test_deploy:
     runs-on: self-hosted
     steps:
-    - name: PR ID and Srcbranch
-      run: |
-        echo "PR ID = ${{ github.event.pull_request.number }}"
-        echo "PR ID = ${{ env.PR_ID }}"
-        echo "Srcbranch = ${{ github.event.pull_request.head.ref }}"
-        echo "Srcbranch = ${{ env.SRCBARANCH }}"
     - name: Deploy to test env
       if: github.event.pull_request.base.ref == 'main'
       run: |
         cd /home/githubrunner/telgrambot
-        ./testscript.sh ${{ env.SRCBARANCH }} main ${{ env.PR_ID }}
+        ./testscript.sh ${{ github.event.pull_request.head.ref }} ${{ github.event.pull_request.number }} ${{ github.event.pull_request.number }}
         
 
