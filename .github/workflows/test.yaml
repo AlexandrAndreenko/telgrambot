@@ -1,7 +1,7 @@
 name: Test for github runner
 env:
-  PR_ID
-  SRCBARANCH
+  PR_ID : "github.event.pull_request.number"
+  SRCBARANCH : "github.event.pull_request.head.ref"
 on:
   push:
     branches-ignore:
