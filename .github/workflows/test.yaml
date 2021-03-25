@@ -22,6 +22,6 @@ jobs:
       if: github.event.pull_request.base.ref == 'main'
       run: |
         cd /home/githubrunner/telgrambot
-        ./testscript.sh {{ env.SRCBARANCH }} main ${{ env.PR_ID }}
+        ./testscript.sh ${{ env.SRCBARANCH }} main ${{ env.PR_ID }}
         
 
