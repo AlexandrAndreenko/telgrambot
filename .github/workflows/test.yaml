@@ -16,8 +16,8 @@ jobs:
       run: |
         echo "PR ID = ${{ github.event.pull_request.number }}"
         echo "PR ID = ${{ env.PR_ID }}"
-        echo "Srcbranch = $ {{ github.event.pull_request.head.ref }}"
-        echo "Srcbranch = $ {{ env.SRCBARANCH }}"
+        echo "Srcbranch = ${{ github.event.pull_request.head.ref }}"
+        echo "Srcbranch = ${{ env.SRCBARANCH }}"
     - name: Deploy to test env
       if: github.event.pull_request.base.ref == 'main'
       run: |
