@@ -1,4 +1,7 @@
 name: Test for github runner
+env:
+  PR_ID
+  SRCBARANCH
 on:
   push:
     branches-ignore:
