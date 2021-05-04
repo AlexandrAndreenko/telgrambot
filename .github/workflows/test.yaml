@@ -8,17 +8,27 @@ on:
       - '**'
   pull_request:
     branches:
-      - main
-      - test2
+      - test
     types: [closed]
 jobs:
   test_deploy:
     runs-on: self-hosted
     steps:
     - name: Deploy to test env
-      if: github.event.pull_request.base.ref == 'main'
+      if: github.event.pull_request.base.ref == 'test'
       run: |
-        cd /home/githubrunner/telgrambot
-        ./testscript.sh ${{ github.event.pull_request.head.ref }} ${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.number }}
+        cd /home/ubuntu/1
+        curl 2ip.ru
+        
+  test_deploy2:
+    runs-on: self-hosted
+    steps:
+    - name: Deploy to test env
+      if: github.event.pull_request.base.ref == 'test'
+      run: |
+        cd /home/ubuntu/2
+        curl 2ip.ru
+  
+   
         
 
