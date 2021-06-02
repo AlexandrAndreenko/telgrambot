@@ -1,0 +1,32 @@
+
+name: Test for github runner
+env:
+  PR_ID : "${{ github.event.pull_request.number }}"
+  SRCBARANCH : "${{ github.event.pull_request.head.ref }}"
+on:
+  push:
+    branches-ignore:
+      - '**'
+  pull_request:
+    branches:
+      - test2
+    types: [closed]
+jobs:
+  test_deploy:
+    runs-on: self-hosted
+    steps:
+    - name: Deploy to test env
+      if: github.event.pull_request.base.ref == 'test'
+      run: |
+        cd /home/ubuntu/1
+        curl 2ip.ru
+        
+  test_deploy2:
+    needs: test_deploy
+    runs-on: self-hosted
+    steps:
+    - name: Deploy to test env
+      if: github.event.pull_request.base.ref == 'test'
+      run: |
+        cd /home/ubuntu/2
+        curl 2ip.ru
