@@ -21,6 +21,7 @@ jobs:
         curl 2ip.ru
         
   test_deploy2:
+    needs: test_deploy
     runs-on: self-hosted
     steps:
     - name: Deploy to test env
